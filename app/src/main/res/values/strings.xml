@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">MyFirstPhoneApp</string>
     <string name="welcome_text">ThisIsAndromeda</string>
+    <string name="title_activity_four">ActivityFour</string>
 </resources>

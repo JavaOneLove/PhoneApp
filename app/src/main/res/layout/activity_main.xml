@@ -22,8 +22,7 @@
         android:id="@+id/button"
         android:layout_width="195dp"
         android:layout_height="72dp"
-        android:text="Сенсоры
-"
+        android:text="Сенсоры"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
@@ -32,11 +31,33 @@
         android:id="@+id/button4"
         android:layout_width="195dp"
         android:layout_height="72dp"
-        android:layout_marginTop="96dp"
+        android:layout_marginTop="20dp"
         android:onClick="onClickTwo"
         android:text="База Данных"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/button" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="195dp"
+        android:layout_height="72dp"
+        android:layout_marginTop="20dp"
+        android:onClick="onClickCanvas"
+        android:text="Canvas"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button4" />
+
+    <Button
+        android:id="@+id/buttonMultyTouch"
+        android:layout_width="195dp"
+        android:layout_height="72dp"
+        android:layout_marginTop="20dp"
+        android:onClick="onClickMultyTouch"
+        android:text="MultyTouch"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

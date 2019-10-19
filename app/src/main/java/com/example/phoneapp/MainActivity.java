@@ -30,5 +30,13 @@ public class MainActivity extends Activity implements OnClickListener {
         Intent intent = new Intent(this, ActivityThree.class);
         startActivity(intent);
     }
+    public void onClickCanvas(View v){
+        Intent intent = new Intent(this, ActivityFour.class);
+        startActivity(intent);
+    }
+    public void onClickMultyTouch(View v){
+        Intent intent = new Intent(this, ActivityMultiTouch.class);
+        startActivity(intent);
+    }
 
 }
