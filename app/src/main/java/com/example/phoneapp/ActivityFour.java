@@ -1,69 +1,167 @@
 package com.example.phoneapp;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.PathShape;
 import android.os.Bundle;
 import android.content.Context;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 
-public class ActivityFour extends AppCompatActivity implements View.OnTouchListener {
+public class ActivityFour extends AppCompatActivity {
 
-    boolean inTouch = false;
+    DrawingView dv ;
+    private Paint mPaint;
+    protected boolean check = true; // true - пятиугольник, false - кисть
+    Button button;
+
+
+    public void onButtonClick(View v){
+        if (check){
+            check = false;
+            button.setText("Кисть");
+        }else {
+            check = true;
+            button.setText("Пятиугольник");
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(new DrawView(this));
+        dv = new DrawingView(this);
+        setContentView(dv);
+        button = findViewById(R.id.button);
+        mPaint = new Paint();
+        mPaint.setAntiAlias(true);
+        mPaint.setDither(true);
+        mPaint.setColor(Color.GREEN);
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeJoin(Paint.Join.ROUND);
+        mPaint.setStrokeCap(Paint.Cap.ROUND);
+        mPaint.setStrokeWidth(12);
     }
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        int actionMask = event.getActionMasked();
-        Canvas canvas = null;
+    public class DrawingView extends View {
 
-        switch (actionMask) {
-            case MotionEvent.ACTION_DOWN: // первое касание
-                inTouch = true;
+        public int width;
+        public  int height;
+        private Bitmap mBitmap;
+        private Canvas  mCanvas;
+        private Path mPath;
+        private Paint   mBitmapPaint;
+        Context context;
+        private Paint circlePaint;
+        private Path circlePath;
 
-
-            case MotionEvent.ACTION_UP: // прерывание последнего касания
-                inTouch = false;
-
-
-            case MotionEvent.ACTION_MOVE: // движение
-
-                for (int i = 0; i < 2; i++) {
-                    //canvas.drawLine(event.getX(i),event.getY(i),event.getX(i) + 10,event.getY(i)+ 10);
-
-                }
-                break;
+        public DrawingView(Context c) {
+            super(c);
+            context=c;
+            mPath = new Path();
+            mBitmapPaint = new Paint(Paint.DITHER_FLAG);
+            circlePaint = new Paint();
+            circlePath = new Path();
+            circlePaint.setAntiAlias(true);
+            circlePaint.setColor(Color.BLUE);
+            circlePaint.setStyle(Paint.Style.STROKE);
+            circlePaint.setStrokeJoin(Paint.Join.MITER);
+            circlePaint.setStrokeWidth(4f);
         }
-        return true;
-    }
 
-    class DrawView extends View {
-        Paint paint;
-        Rect rect;
-
-
-    public DrawView(Context context){
-        super(context);
-        paint = new Paint();
-        rect = new Rect();
-        }
         @Override
-        protected void onDraw(Canvas canvas){
-        canvas.drawRGB(80,102,204);
-            paint.setColor(Color.RED);
-            paint.setStrokeWidth(10);
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            super.onSizeChanged(w, h, oldw, oldh);
+
+            mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            mCanvas = new Canvas(mBitmap);
         }
 
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+           // if (!check) {
+                canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
+                canvas.drawPath(mPath, mPaint);
+                canvas.drawPath(circlePath, circlePaint);
+          //  }else Star(canvas,circlePaint);
+        }
+
+        private float mX, mY;
+        private static final float TOUCH_TOLERANCE = 4;
+
+        private void touch_start(float x, float y) {
+            mPath.reset();
+            mPath.moveTo(x, y);
+            mX = x;
+            mY = y;
+        }
+
+        private void touch_move(float x, float y) {
+            float dx = Math.abs(x - mX);
+            float dy = Math.abs(y - mY);
+            if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
+                mPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
+                mX = x;
+                mY = y;
+
+                circlePath.reset();
+                circlePath.addCircle(mX, mY, 30, Path.Direction.CW);
+            }
+        }
+
+        private void touch_up() {
+            mPath.lineTo(mX, mY);
+            circlePath.reset();
+            // commit the path to our offscreen
+            mCanvas.drawPath(mPath,  mPaint);
+            // kill this so we don't double draw
+            mPath.reset();
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            float x = event.getX();
+            float y = event.getY();
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    touch_start(x, y);
+                    invalidate();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    touch_move(x, y);
+                    invalidate();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    touch_up();
+                    invalidate();
+                    break;
+            }
+            return true;
+        }
+
+        public void Star(Canvas canvas,Paint paint){
+            Path p = new Path();
+            p.moveTo(50, 0);
+            p.lineTo(25, 100);
+            p.lineTo(100,50);
+            p.lineTo(0,50);
+            p.lineTo(75,100);
+            p.lineTo(50,0);
+            ShapeDrawable d = new ShapeDrawable(new PathShape(p, 100, 100));
+            d.setIntrinsicHeight(100);
+            d.setIntrinsicWidth(100);
+            d.getPaint().setColor(Color.YELLOW);
+            d.getPaint().setStyle(Paint.Style.STROKE);
+        }
     }
 
 }
