@@ -38,5 +38,8 @@ public class MainActivity extends Activity implements OnClickListener {
         Intent intent = new Intent(this, ActivityMultiTouch.class);
         startActivity(intent);
     }
-
+    public void onClickCamera(View view) {
+        Intent intent = new Intent(this, CameraActivity.class);
+        startActivity(intent);
+    }
 }

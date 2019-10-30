@@ -2,166 +2,113 @@ package com.example.phoneapp;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.PathShape;
 import android.os.Bundle;
 import android.content.Context;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 
 public class ActivityFour extends AppCompatActivity {
-
-    DrawingView dv ;
-    private Paint mPaint;
-    protected boolean check = true; // true - пятиугольник, false - кисть
-    Button button;
-
-
-    public void onButtonClick(View v){
-        if (check){
-            check = false;
-            button.setText("Кисть");
-        }else {
-            check = true;
-            button.setText("Пятиугольник");
-        }
-    }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dv = new DrawingView(this);
-        setContentView(dv);
-        button = findViewById(R.id.button);
-        mPaint = new Paint();
-        mPaint.setAntiAlias(true);
-        mPaint.setDither(true);
-        mPaint.setColor(Color.GREEN);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
-        mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setStrokeWidth(12);
+        setContentView(new DrawingView(this));
     }
+
+    protected Paint mPaint;
+    protected Bitmap mBitmap;
+    protected Canvas mCanvas;
+    public static final float TOUCH_STROKE_WIDTH = 5;
+    protected float mStartX;
+    protected float mStartY;
+
+    protected float mx;
+    protected float my;
+    protected boolean isDrawing = false;
+    protected Paint mPaintFinal;
 
     public class DrawingView extends View {
 
-        public int width;
-        public  int height;
-        private Bitmap mBitmap;
-        private Canvas  mCanvas;
-        private Path mPath;
-        private Paint   mBitmapPaint;
-        Context context;
-        private Paint circlePaint;
-        private Path circlePath;
+        public DrawingView(Context context) {
+            super(context);
+            init();
+        }
 
-        public DrawingView(Context c) {
-            super(c);
-            context=c;
-            mPath = new Path();
-            mBitmapPaint = new Paint(Paint.DITHER_FLAG);
-            circlePaint = new Paint();
-            circlePath = new Path();
-            circlePaint.setAntiAlias(true);
-            circlePaint.setColor(Color.BLUE);
-            circlePaint.setStyle(Paint.Style.STROKE);
-            circlePaint.setStrokeJoin(Paint.Join.MITER);
-            circlePaint.setStrokeWidth(4f);
+        protected void init() {
+            mPaint = new Paint(Paint.DITHER_FLAG);
+            mPaint.setAntiAlias(true);
+            mPaint.setDither(true);
+            mPaint.setColor(getContext().getResources().getColor(android.R.color.holo_blue_dark));
+            mPaint.setStyle(Paint.Style.STROKE);
+            mPaint.setStrokeJoin(Paint.Join.ROUND);
+            mPaint.setStrokeCap(Paint.Cap.ROUND);
+            mPaint.setStrokeWidth(TOUCH_STROKE_WIDTH);
         }
 
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             super.onSizeChanged(w, h, oldw, oldh);
-
             mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             mCanvas = new Canvas(mBitmap);
         }
-
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            mx = event.getX();
+            my = event.getY();
+                    onTouchEventCircle(event);
+            return true;
+        }
         @Override
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
-           // if (!check) {
-                canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
-                canvas.drawPath(mPath, mPaint);
-                canvas.drawPath(circlePath, circlePaint);
-          //  }else Star(canvas,circlePaint);
+            canvas.drawBitmap(mBitmap, 0, 0, mPaint);
+
+                       // onDrawCircle(canvas);
+            DrawStar(canvas);
         }
 
-        private float mX, mY;
-        private static final float TOUCH_TOLERANCE = 4;
-
-        private void touch_start(float x, float y) {
-            mPath.reset();
-            mPath.moveTo(x, y);
-            mX = x;
-            mY = y;
+        private void DrawStar(Canvas canvas){
+            canvas.drawLine(300 ,300 ,500 ,500,mPaint);
+            canvas.drawLine(500,500,700,300,mPaint);
+            canvas.drawLine(700,300,650,100,mPaint);
+            canvas.drawLine(650,100,350,100,mPaint);
+            canvas.drawLine(350,100,300,300,mPaint);
         }
 
-        private void touch_move(float x, float y) {
-            float dx = Math.abs(x - mX);
-            float dy = Math.abs(y - mY);
-            if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
-                mPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
-                mX = x;
-                mY = y;
+        private void onDrawCircle(Canvas canvas) {
+            canvas.drawCircle(mStartX, mStartY, calculateRadius(mStartX, mStartY, mx, my), mPaint);
 
-                circlePath.reset();
-                circlePath.addCircle(mX, mY, 30, Path.Direction.CW);
-            }
         }
 
-        private void touch_up() {
-            mPath.lineTo(mX, mY);
-            circlePath.reset();
-            // commit the path to our offscreen
-            mCanvas.drawPath(mPath,  mPaint);
-            // kill this so we don't double draw
-            mPath.reset();
-        }
-
-        @Override
-        public boolean onTouchEvent(MotionEvent event) {
-            float x = event.getX();
-            float y = event.getY();
-
+        private void onTouchEventCircle(MotionEvent event) {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    touch_start(x, y);
+                    isDrawing = true;
+                    mStartX = mx;
+                    mStartY = my;
                     invalidate();
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    touch_move(x, y);
                     invalidate();
                     break;
                 case MotionEvent.ACTION_UP:
-                    touch_up();
+                    isDrawing = false;
+                    mCanvas.drawCircle(mStartX, mStartY,
+                            calculateRadius(mStartX,mStartY,mx,my), mPaintFinal);
                     invalidate();
                     break;
             }
-            return true;
         }
 
-        public void Star(Canvas canvas,Paint paint){
-            Path p = new Path();
-            p.moveTo(50, 0);
-            p.lineTo(25, 100);
-            p.lineTo(100,50);
-            p.lineTo(0,50);
-            p.lineTo(75,100);
-            p.lineTo(50,0);
-            ShapeDrawable d = new ShapeDrawable(new PathShape(p, 100, 100));
-            d.setIntrinsicHeight(100);
-            d.setIntrinsicWidth(100);
-            d.getPaint().setColor(Color.YELLOW);
-            d.getPaint().setStyle(Paint.Style.STROKE);
+        protected float calculateRadius(float x1, float y1, float x2, float y2) {
+            return (float) Math.sqrt( Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) );
         }
+
     }
+
 
 }

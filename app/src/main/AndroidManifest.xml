@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".CameraActivity"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -18,13 +19,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ActivityTwo"></activity>
-        <activity android:name=".ActivityThree"></activity>
+        <activity android:name=".ActivityTwo" />
+        <activity android:name=".ActivityThree" />
         <activity
             android:name=".ActivityFour"
             android:label="@string/title_activity_four"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity android:name=".ActivityMultiTouch"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ActivityMultiTouch" />
     </application>
 
 </manifest>
