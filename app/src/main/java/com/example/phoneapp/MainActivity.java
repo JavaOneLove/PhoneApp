@@ -42,4 +42,12 @@ public class MainActivity extends Activity implements OnClickListener {
         Intent intent = new Intent(this, CameraActivity.class);
         startActivity(intent);
     }
+    public void onClickCameraTwo(View view) {
+        Intent intent = new Intent(this, CameraTwoActivity.class);
+        startActivity(intent);
+    }
+    public void onClickCanvasTwo(View view) {
+        Intent intent = new Intent(this, CanvasDrawActivity.class);
+        startActivity(intent);
+    }
 }

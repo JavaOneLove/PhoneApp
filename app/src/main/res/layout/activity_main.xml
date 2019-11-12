@@ -8,67 +8,77 @@
     tools:context=".MainActivity">
 
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="397dp"
-        android:layout_height="59dp"
-        android:text="Main Page"
-        android:textSize="40dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="-36dp"
+        tools:layout_editor_absoluteY="91dp">
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="195dp"
-        android:layout_height="72dp"
-        android:text="Сенсоры"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <Button
-        android:id="@+id/button4"
-        android:layout_width="195dp"
-        android:layout_height="72dp"
-        android:layout_marginTop="20dp"
-        android:onClick="onClickTwo"
-        android:text="База Данных"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="397dp"
+                android:layout_height="59dp"
+                android:text="Main Page"
+                android:textSize="40dp" />
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="195dp"
-        android:layout_height="72dp"
-        android:layout_marginTop="20dp"
-        android:onClick="onClickCanvas"
-        android:text="Canvas"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button4" />
+            <Button
+                android:id="@+id/button"
+                android:layout_width="195dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="20dp"
+                android:text="Сенсоры" />
 
-    <Button
-        android:id="@+id/buttonMultyTouch"
-        android:layout_width="195dp"
-        android:layout_height="72dp"
-        android:layout_marginTop="20dp"
-        android:onClick="onClickMultyTouch"
-        android:text="MultyTouch"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button2" />
+            <Button
+                android:id="@+id/button4"
+                android:layout_width="195dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="20dp"
+                android:onClick="onClickTwo"
+                android:text="База Данных" />
 
-    <Button
-        android:id="@+id/buttonMultyTouch2"
-        android:layout_width="195dp"
-        android:layout_height="72dp"
-        android:layout_marginTop="120dp"
-        android:onClick="onClickCamera"
-        android:text="Camera"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button2" />
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="195dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="20dp"
+                android:onClick="onClickCanvas"
+                android:text="Canvas" />
+            <Button
+                android:id="@+id/buttonCanvasTwo"
+                android:layout_width="195dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="20dp"
+                android:onClick="onClickCanvasTwo"
+                android:text="CanvasTwo" />
+
+            <Button
+                android:id="@+id/buttonMultyTouch"
+                android:layout_width="195dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="20dp"
+                android:onClick="onClickMultyTouch"
+                android:text="MultyTouch" />
+
+            <Button
+                android:id="@+id/buttonMultyTouch2"
+                android:layout_width="195dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="20dp"
+                android:onClick="onClickCamera"
+                android:text="Camera" />
+            <Button
+                android:id="@+id/buttonNew"
+                android:layout_width="195dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="20dp"
+                android:onClick="onClickCameraTwo"
+                android:text="Camera2" />
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

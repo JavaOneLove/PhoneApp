@@ -1,111 +1,173 @@
 package com.example.phoneapp;
 
-import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
+import java.io.IOException;
+import android.app.Activity;
+import android.graphics.Matrix;
+import android.graphics.RectF;
+import android.hardware.Camera;
+import android.hardware.Camera.CameraInfo;
+import android.hardware.Camera.Size;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
+import android.view.Display;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.Window;
+import android.view.WindowManager;
 
-import java.io.File;
+public class CameraActivity extends Activity {
 
-public class CameraActivity extends AppCompatActivity {
+    SurfaceView sv;
+    SurfaceHolder holder;
+    HolderCallback holderCallback;
+    Camera camera;
 
-    File directory;
-    final int TYPE_PHOTO = 1;
-    final int TYPE_VIDEO = 2;
-
-    final int REQUEST_CODE_PHOTO = 1;
-    final int REQUEST_CODE_VIDEO = 2;
-
-    final String TAG = "myLogs";
-
-    ImageView ivPhoto;
+    final int CAMERA_ID = 0;
+    final boolean FULL_SCREEN = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_camera);
-        createDirectory();
-        ivPhoto = (ImageView) findViewById(R.id.ivPhoto);
-    }
-    public void onClickPhoto(View view) {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, generateFileUri(TYPE_PHOTO));
-        startActivityForResult(intent, REQUEST_CODE_PHOTO);
-    }
 
-    public void onClickVideo(View view) {
-        Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, generateFileUri(TYPE_VIDEO));
-        startActivityForResult(intent, REQUEST_CODE_VIDEO);
+        sv = (SurfaceView) findViewById(R.id.surfaceView);
+        holder = sv.getHolder();
+        holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
+        holderCallback = new HolderCallback();
+        holder.addCallback(holderCallback);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode,
-                                    Intent intent) {
-        if (requestCode == REQUEST_CODE_PHOTO) {
-            if (resultCode == RESULT_OK) {
-                if (intent == null) {
-                    Log.d(TAG, "Intent is null");
-                } else {
-                    Log.d(TAG, "Photo uri: " + intent.getData());
-                    Bundle bndl = intent.getExtras();
-                    if (bndl != null) {
-                        Object obj = intent.getExtras().get("data");
-                        if (obj instanceof Bitmap) {
-                            Bitmap bitmap = (Bitmap) obj;
-                            Log.d(TAG, "bitmap " + bitmap.getWidth() + " x "
-                                    + bitmap.getHeight());
-                            ivPhoto.setImageBitmap(bitmap);
-                        }
-                    }
-                }
-            } else if (resultCode == RESULT_CANCELED) {
-                Log.d(TAG, "Canceled");
+    protected void onResume() {
+        super.onResume();
+        camera = Camera.open(CAMERA_ID);
+        setPreviewSize(FULL_SCREEN);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (camera != null)
+            camera.release();
+        camera = null;
+    }
+
+    class HolderCallback implements SurfaceHolder.Callback {
+
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+            try {
+                camera.setPreviewDisplay(holder);
+                camera.startPreview();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
-        if (requestCode == REQUEST_CODE_VIDEO) {
-            if (resultCode == RESULT_OK) {
-                if (intent == null) {
-                    Log.d(TAG, "Intent is null");
-                } else {
-                    Log.d(TAG, "Video uri: " + intent.getData());
-                }
-            } else if (resultCode == RESULT_CANCELED) {
-                Log.d(TAG, "Canceled");
+        @Override
+        public void surfaceChanged(SurfaceHolder holder, int format, int width,
+                                   int height) {
+            camera.stopPreview();
+            setCameraDisplayOrientation(CAMERA_ID);
+            try {
+                camera.setPreviewDisplay(holder);
+                camera.startPreview();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
+
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+
+        }
+
     }
 
-    private Uri generateFileUri(int type) {
-        File file = null;
-        switch (type) {
-            case TYPE_PHOTO:
-                file = new File(directory.getPath() + "/" + "photo_"
-                        + System.currentTimeMillis() + ".jpg");
+    void setPreviewSize(boolean fullScreen) {
+
+        // получаем размеры экрана
+        Display display = getWindowManager().getDefaultDisplay();
+        boolean widthIsMax = display.getWidth() > display.getHeight();
+
+        // определяем размеры превью камеры
+        Size size = camera.getParameters().getPreviewSize();
+
+        RectF rectDisplay = new RectF();
+        RectF rectPreview = new RectF();
+
+        // RectF экрана, соотвествует размерам экрана
+        rectDisplay.set(0, 0, display.getWidth(), display.getHeight());
+
+        // RectF первью
+        if (widthIsMax) {
+            // превью в горизонтальной ориентации
+            rectPreview.set(0, 0, size.width, size.height);
+        } else {
+            // превью в вертикальной ориентации
+            rectPreview.set(0, 0, size.height, size.width);
+        }
+
+        Matrix matrix = new Matrix();
+        // подготовка матрицы преобразования
+        if (!fullScreen) {
+            // если превью будет "втиснут" в экран (второй вариант из урока)
+            matrix.setRectToRect(rectPreview, rectDisplay,
+                    Matrix.ScaleToFit.START);
+        } else {
+            // если экран будет "втиснут" в превью (третий вариант из урока)
+            matrix.setRectToRect(rectDisplay, rectPreview,
+                    Matrix.ScaleToFit.START);
+            matrix.invert(matrix);
+        }
+        // преобразование
+        matrix.mapRect(rectPreview);
+
+        // установка размеров surface из получившегося преобразования
+        sv.getLayoutParams().height = (int) (rectPreview.bottom);
+        sv.getLayoutParams().width = (int) (rectPreview.right);
+    }
+
+    void setCameraDisplayOrientation(int cameraId) {
+        // определяем насколько повернут экран от нормального положения
+        int rotation = getWindowManager().getDefaultDisplay().getRotation();
+        int degrees = 0;
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                degrees = 0;
                 break;
-            case TYPE_VIDEO:
-                file = new File(directory.getPath() + "/" + "video_"
-                        + System.currentTimeMillis() + ".mp4");
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
                 break;
         }
-        Log.d(TAG, "fileName = " + file);
-        return Uri.fromFile(file);
-    }
 
-    private void createDirectory() {
-        directory = new File(
-                Environment
-                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                "MyFolder");
-        if (!directory.exists())
-            directory.mkdirs();
+        int result = 0;
+
+        // получаем инфо по камере cameraId
+        android.hardware.Camera.CameraInfo info = new CameraInfo();
+        Camera.getCameraInfo(cameraId, info);
+
+        // задняя камера
+        if (info.facing == CameraInfo.CAMERA_FACING_BACK) {
+            result = ((360 - degrees) + info.orientation);
+        } else
+            // передняя камера
+            if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
+                result = ((360 - degrees) - info.orientation);
+                result += 360;
+            }
+        result = result % 360;
+        camera.setDisplayOrientation(result);
     }
 }
